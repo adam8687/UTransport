@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "268631531286",
+    "project_id": "ut-surewalkpts-integration-app",
+    "storage_bucket": "ut-surewalkpts-integration-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:268631531286:android:795f99fb7a9e51551f3a37",
+        "android_client_info": {
+          "package_name": "com.accessibilitysp26"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGq4XUlwCDn0EJvECjkbZbqCyuR-n12QU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

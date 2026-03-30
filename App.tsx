@@ -4,7 +4,8 @@
  * @format
  */
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import firebase from '@react-native-firebase/app';
 import {
   SafeAreaView,
   ScrollView,
@@ -14,8 +15,18 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
+// Optional: Firebase config can be omitted if google-services.json is present and correct
+// If you need to check initialization, you can log the app name
 
 function App(): React.JSX.Element {
+  useEffect(() => {
+    // Check if Firebase is initialized
+    if (firebase.apps.length) {
+      console.log('Firebase initialized:', firebase.app().name);
+    } else {
+      console.error('Firebase not initialized!');
+    }
+  }, []);
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
@@ -35,6 +46,9 @@ function App(): React.JSX.Element {
         <View style={styles.container}>
           <Text style={styles.title}>AccessibilitySP26</Text>
           <Text style={styles.subtitle}>Ready to build something great!</Text>
+          <Text style={{ marginTop: 20, color: '#888', fontSize: 12 }}>
+            Firebase should be initialized (check console for status)
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
