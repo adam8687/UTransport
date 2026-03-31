@@ -1,5 +1,5 @@
 # AccessibilitySP26
-Gamify health management for kids with Diabetes  
+Gamify health management for kids with Diabetes 
 
 ** The game logic and terminology must be medically perfect ** 
 
