@@ -68,7 +68,7 @@ export default function SignUpScreen() {
 
           <TouchableOpacity
             style={styles.primaryButton}
-            onPress={() => router.replace('/(tabs)/request')}
+            onPress={() => router.push({ pathname: '/(tabs)/account-info', params: { email } })}
           >
             <Text style={styles.primaryButtonText}>Sign up</Text>
           </TouchableOpacity>

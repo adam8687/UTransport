@@ -61,6 +61,14 @@ export default function TabLayout() {
           href: null, // hides it from the tab bar
         }}
       />
+      <Tabs.Screen
+        name="account-info"
+        options={{ href: null }}
+      />
+      <Tabs.Screen
+        name="accessibility-info"
+        options={{ href: null }}
+      />
     </Tabs>
   );
 }
