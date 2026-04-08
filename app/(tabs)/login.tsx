@@ -12,10 +12,13 @@ import {
     View,
 } from 'react-native';
 
+import { useUser } from '@/context/UserContext';
+
 const BURNT_ORANGE = '#BF5700';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { setUserInfo } = useUser();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
@@ -60,7 +63,10 @@ export default function LoginScreen() {
 
           <TouchableOpacity
             style={styles.primaryButton}
-            onPress={() => router.replace('/(tabs)/request')}
+            onPress={() => {
+              setUserInfo({ email: username, username, role: 'employee' });
+              router.replace('/(tabs)/account');
+            }}
           >
             <Text style={styles.primaryButtonText}>Log in</Text>
           </TouchableOpacity>
