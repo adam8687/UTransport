@@ -42,7 +42,6 @@ export default function HomeScreen() {
             label="For Students"
             onPress={() => router.push('/(tabs)/login')}
           />
-          <Text style={styles.orText}>or</Text>
           <GlassButton
             label="For Employees"
             onPress={() =>
@@ -70,6 +69,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 28,
     fontWeight: '800',
+    fontFamily: 'SourceSans3_800ExtraBold',
     textAlign: 'center',
     letterSpacing: 0.3,
     textShadowColor: 'rgba(0,0,0,0.2)',
@@ -99,6 +99,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
+    fontFamily: 'SourceSans3_600SemiBold',
     textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.15)',
     textShadowOffset: { width: 0, height: 1 },
@@ -108,10 +109,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     alignItems: 'center',
   },
-  orText: {
-    fontSize: 15,
-    color: 'rgba(255,255,255,0.8)',
-    fontWeight: '500',
-    marginVertical: 2,
-  },
+
 });

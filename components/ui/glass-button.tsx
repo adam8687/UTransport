@@ -104,6 +104,7 @@ const styles = StyleSheet.create({
   label: {
     fontSize: 20,
     fontWeight: '700',
+    fontFamily: 'SourceSans3_700Bold',
     color: '#1a1a1a',
     letterSpacing: 0.2,
   },

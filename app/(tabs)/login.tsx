@@ -1,15 +1,15 @@
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import {
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 import { useUser } from '@/context/UserContext';
@@ -57,10 +57,6 @@ export default function LoginScreen() {
             />
           </View>
 
-          <TouchableOpacity>
-            <Text style={styles.forgotText}>Forgot Password?</Text>
-          </TouchableOpacity>
-
           <TouchableOpacity
             style={styles.primaryButton}
             onPress={() => {
@@ -99,6 +95,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 22,
     fontWeight: '700',
+    fontFamily: 'SourceSans3_700Bold',
   },
   body: {
     flex: 1,
@@ -117,6 +114,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#333',
     fontWeight: '500',
+    fontFamily: 'SourceSans3_500Medium',
   },
   input: {
     flex: 1,
@@ -126,11 +124,7 @@ const styles = StyleSheet.create({
     paddingVertical: 9,
     fontSize: 14,
     color: '#222',
-  },
-  forgotText: {
-    fontSize: 14,
-    color: '#555',
-    marginBottom: 28,
+    fontFamily: 'SourceSans3_400Regular',
   },
   primaryButton: {
     backgroundColor: '#EDE8E0',
@@ -143,10 +137,12 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     fontSize: 17,
     fontWeight: '600',
+    fontFamily: 'SourceSans3_600SemiBold',
     color: '#222',
   },
   linkText: {
     fontSize: 14,
     color: '#555',
+    fontFamily: 'SourceSans3_400Regular',
   },
 });

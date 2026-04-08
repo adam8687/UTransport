@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 22,
     fontWeight: '700',
+    fontFamily: 'SourceSans3_700Bold',
   },
   body: {
     flex: 1,
@@ -126,6 +127,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#333',
     fontWeight: '500',
+    fontFamily: 'SourceSans3_500Medium',
   },
   input: {
     flex: 1,
@@ -135,6 +137,7 @@ const styles = StyleSheet.create({
     paddingVertical: 9,
     fontSize: 14,
     color: '#222',
+    fontFamily: 'SourceSans3_400Regular',
   },
   primaryButton: {
     backgroundColor: '#EDE8E0',
@@ -148,10 +151,12 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     fontSize: 17,
     fontWeight: '600',
+    fontFamily: 'SourceSans3_600SemiBold',
     color: '#222',
   },
   linkText: {
     fontSize: 14,
     color: '#555',
+    fontFamily: 'SourceSans3_400Regular',
   },
 });

@@ -1,12 +1,12 @@
 import { useRouter } from 'expo-router';
 import React from 'react';
 import {
-    SafeAreaView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  SafeAreaView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 const BURNT_ORANGE = '#BF5700';
@@ -73,6 +73,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 22,
     fontWeight: '700',
+    fontFamily: 'SourceSans3_700Bold',
     textAlign: 'center',
   },
   body: {
@@ -94,11 +95,13 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: '600',
+    fontFamily: 'SourceSans3_600SemiBold',
     textAlign: 'center',
   },
   questionText: {
     fontSize: 16,
     color: '#333',
+    fontFamily: 'SourceSans3_400Regular',
     marginBottom: 20,
     textAlign: 'center',
   },
@@ -112,11 +115,13 @@ const styles = StyleSheet.create({
   roleButtonText: {
     fontSize: 16,
     fontWeight: '700',
+    fontFamily: 'SourceSans3_700Bold',
     color: '#222',
   },
   orText: {
     fontSize: 15,
     color: '#666',
+    fontFamily: 'SourceSans3_400Regular',
     marginVertical: 4,
   },
 });

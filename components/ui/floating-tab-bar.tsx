@@ -3,10 +3,10 @@ import * as Haptics from 'expo-haptics';
 import React, { useEffect } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSpring,
-    withTiming,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -168,10 +168,12 @@ const styles = StyleSheet.create({
     marginTop: 3,
     color: 'rgba(60,60,67,0.45)',
     fontWeight: '500',
+    fontFamily: 'SourceSans3_500Medium',
     letterSpacing: 0.1,
   },
   tabLabelActive: {
     color: BURNT_ORANGE,
     fontWeight: '700',
+    fontFamily: 'SourceSans3_700Bold',
   },
 });

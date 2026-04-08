@@ -45,6 +45,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 24,
     fontWeight: '800',
+    fontFamily: 'SourceSans3_800ExtraBold',
     letterSpacing: 0.3,
     textShadowColor: 'rgba(0,0,0,0.2)',
     textShadowOffset: { width: 0, height: 1 },
@@ -59,6 +60,7 @@ const styles = StyleSheet.create({
   promptText: {
     fontSize: 24,
     fontWeight: '700',
+    fontFamily: 'SourceSans3_700Bold',
     color: '#fff',
     marginBottom: 12,
     textAlign: 'center',
@@ -68,6 +70,7 @@ const styles = StyleSheet.create({
   },
   subText: {
     fontSize: 15,
+    fontFamily: 'SourceSans3_400Regular',
     color: 'rgba(255,255,255,0.85)',
     textAlign: 'center',
     lineHeight: 22,
