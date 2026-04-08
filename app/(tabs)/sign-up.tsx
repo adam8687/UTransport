@@ -12,10 +12,13 @@ import {
     View,
 } from 'react-native';
 
+import { useUser } from '@/context/UserContext';
+
 const BURNT_ORANGE = '#BF5700';
 
 export default function SignUpScreen() {
   const router = useRouter();
+  const { setUserInfo, setHasSignedUp } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -68,7 +71,11 @@ export default function SignUpScreen() {
 
           <TouchableOpacity
             style={styles.primaryButton}
-            onPress={() => router.replace('/(tabs)/request')}
+            onPress={() => {
+              setUserInfo({ email, role: 'employee' });
+              setHasSignedUp(true);
+              router.replace('/(tabs)/account');
+            }}
           >
             <Text style={styles.primaryButtonText}>Sign up</Text>
           </TouchableOpacity>
