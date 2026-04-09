@@ -56,27 +56,47 @@ export default function SignUpScreen() {
     }
     setLoading(true);
     try {
-      const cred = await createUserWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
-      await setDoc(doc(db, 'users', cred.user.uid), {
-        uid: cred.user.uid,
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-        utEID: utEID.trim().toLowerCase(),
-        email: email.trim().toLowerCase(),
-        phone: phone.trim(),
-        role: 'student',
-        profileComplete: false,
-        createdAt: serverTimestamp(),
-      });
-      router.push('/(pre-auth)/onboarding');
-    } catch (e: any) {
-      if (e.code === 'auth/email-already-in-use') {
-        setError('An account with this email already exists. Log in instead.');
-      } else if (e.code === 'auth/weak-password') {
-        setError('Password is too weak. Use at least 8 characters.');
-      } else {
-        setError('Sign up failed. Please try again.');
+      // Step 1 — create the Firebase Auth account
+      let cred;
+      try {
+        cred = await createUserWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
+      } catch (authErr: any) {
+        console.error('[SignUp] Auth error:', authErr.code, authErr.message);
+        if (authErr.code === 'auth/email-already-in-use') {
+          setError('An account with this email already exists. Log in instead.');
+        } else if (authErr.code === 'auth/weak-password') {
+          setError('Password is too weak. Use at least 8 characters.');
+        } else if (authErr.code === 'auth/invalid-email') {
+          setError('Invalid email address format.');
+        } else if (authErr.code === 'auth/network-request-failed') {
+          setError('Network error. Check your connection and try again.');
+        } else {
+          setError(`Sign up failed (${authErr.code ?? 'unknown'}). Please try again.`);
+        }
+        setLoading(false);
+        return;
       }
+
+      // Step 2 — save the initial profile to Firestore
+      try {
+        await setDoc(doc(db, 'users', cred.user.uid), {
+          uid: cred.user.uid,
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          utEID: utEID.trim().toLowerCase(),
+          email: email.trim().toLowerCase(),
+          phone: phone.trim(),
+          role: 'student',
+          profileComplete: false,
+          createdAt: serverTimestamp(),
+        });
+      } catch (dbErr: any) {
+        // Auth account was created — still let the user proceed.
+        // The profile can be written on the next screen.
+        console.error('[SignUp] Firestore write error:', dbErr.code, dbErr.message);
+      }
+
+      router.push('/(pre-auth)/onboarding');
     } finally {
       setLoading(false);
     }
