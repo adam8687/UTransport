@@ -1,5 +1,7 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore"; // 1. Add this import
+import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDeq05fgcbKIgDqGkHU8U2rWyVIdc8ZSaA",
@@ -11,8 +13,7 @@ const firebaseConfig = {
   measurementId: "G-LKR7TY1C4C"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// 2. Export the database so you can use it in other files
 export const db = getFirestore(app);
+export const auth = getAuth(app);
+export const storage = getStorage(app);
