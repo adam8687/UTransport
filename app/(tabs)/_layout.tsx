@@ -8,9 +8,7 @@ export default function TabLayout() {
       tabBar={(props) => <FloatingTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        lazy: true,
       }}
-      sceneContainerStyle={{ paddingBottom: 100 }}
     >
       <Tabs.Screen
         name="work-portal"

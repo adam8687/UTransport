@@ -8,9 +8,7 @@ export default function StudentTabLayout() {
       tabBar={(props) => <FloatingTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        lazy: true,
       }}
-      sceneContainerStyle={{ paddingBottom: 100 }}
     >
       <Tabs.Screen name="index" options={{ title: 'Home', tabBarIcon: ({ color }) => <IconSymbol size={26} name="house.fill" color={color} /> }} />
       <Tabs.Screen name="request" options={{ title: 'Request', tabBarIcon: ({ color }) => <IconSymbol size={26} name="bell.fill" color={color} /> }} />
