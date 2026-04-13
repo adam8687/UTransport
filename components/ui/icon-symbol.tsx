@@ -22,6 +22,8 @@ const MAPPING = {
   'bell.fill': 'notifications',
   'person.fill': 'person',
   'person.badge.plus': 'person-add',
+  'clock.fill': 'history',
+  'briefcase.fill': 'work',
 } as IconMapping;
 
 /**
