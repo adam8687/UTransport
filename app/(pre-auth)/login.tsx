@@ -19,36 +19,9 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  async function handleSignIn() {
-    setError('');
-    if (!email.trim() || !password.trim()) {
-      setError('Please enter your email and password.');
-      return;
-    }
-    setLoading(true);
-    try {
-      const cred = await signInWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
-      // fetch role to route correctly
-      const snap = await getDoc(doc(db, 'users', cred.user.uid));
-      const profile = snap.data();
-      if (profile?.role === 'employee') {
-        router.replace('/(tabs)/work-portal');
-      } else if (profile?.profileComplete) {
-        router.replace('/(student)/(tabs)');
-      } else {
-        router.replace('/(pre-auth)/onboarding');
-      }
-    } catch (e: any) {
-      if (e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential') {
-        setError('No account found. Tap Sign Up to register.');
-      } else if (e.code === 'auth/wrong-password') {
-        setError('Incorrect email or password.');
-      } else {
-        setError('Sign in failed. Please try again.');
-      }
-    } finally {
-      setLoading(false);
-    }
+  function handleSignIn() {
+    // TODO: re-enable Firebase auth once backend is configured
+    router.replace('/(student)/(tabs)');
   }
 
   return (
