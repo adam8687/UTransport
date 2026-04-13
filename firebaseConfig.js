@@ -1,5 +1,7 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore"; // 1. Add this import
+import { getFirestore } from "firebase/firestore";
+import { initializeAuth, getReactNativePersistence, getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDeq05fgcbKIgDqGkHU8U2rWyVIdc8ZSaA",
@@ -11,8 +13,21 @@ const firebaseConfig = {
   measurementId: "G-LKR7TY1C4C"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-
-// 2. Export the database so you can use it in other files
 export const db = getFirestore(app);
+
+// React Native requires initializeAuth with AsyncStorage persistence so that
+// the user session survives app restarts. Falls back to getAuth (in-memory)
+// if @react-native-async-storage/async-storage isn't installed yet.
+let auth;
+try {
+  const AsyncStorage = require('@react-native-async-storage/async-storage').default;
+  auth = initializeAuth(app, {
+    persistence: getReactNativePersistence(AsyncStorage),
+  });
+} catch {
+  auth = getAuth(app);
+}
+export { auth };
+
+export const storage = getStorage(app);
