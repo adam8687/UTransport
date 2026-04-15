@@ -1,12 +1,12 @@
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { useUser } from '@/context/UserContext';
+import { db } from '@/firebaseConfig';
 import { useRouter } from 'expo-router';
+import { doc, serverTimestamp, setDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import {
   ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView,
   ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View,
 } from 'react-native';
-import { auth, db } from '@/firebaseConfig';
 
 const BURNT_ORANGE = '#BF5700';
 
@@ -21,6 +21,7 @@ function Field({ label, ...props }: any) {
 
 export default function SignUpScreen() {
   const router = useRouter();
+  const { loginUser } = useUser();
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [utEID, setUtEID] = useState('');
@@ -56,31 +57,12 @@ export default function SignUpScreen() {
     }
     setLoading(true);
     try {
-      // Step 1 — create the Firebase Auth account
-      let cred;
-      try {
-        cred = await createUserWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
-      } catch (authErr: any) {
-        console.error('[SignUp] Auth error:', authErr.code, authErr.message);
-        if (authErr.code === 'auth/email-already-in-use') {
-          setError('An account with this email already exists. Log in instead.');
-        } else if (authErr.code === 'auth/weak-password') {
-          setError('Password is too weak. Use at least 8 characters.');
-        } else if (authErr.code === 'auth/invalid-email') {
-          setError('Invalid email address format.');
-        } else if (authErr.code === 'auth/network-request-failed') {
-          setError('Network error. Check your connection and try again.');
-        } else {
-          setError(`Sign up failed (${authErr.code ?? 'unknown'}). Please try again.`);
-        }
-        setLoading(false);
-        return;
-      }
+      // Demo mode — generate a fake UID and write directly to Firestore
+      const fakeUid = `demo_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 
-      // Step 2 — save the initial profile to Firestore
       try {
-        await setDoc(doc(db, 'users', cred.user.uid), {
-          uid: cred.user.uid,
+        await setDoc(doc(db, 'users', fakeUid), {
+          uid: fakeUid,
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           utEID: utEID.trim().toLowerCase(),
@@ -91,11 +73,10 @@ export default function SignUpScreen() {
           createdAt: serverTimestamp(),
         });
       } catch (dbErr: any) {
-        // Auth account was created — still let the user proceed.
-        // The profile can be written on the next screen.
         console.error('[SignUp] Firestore write error:', dbErr.code, dbErr.message);
       }
 
+      await loginUser(fakeUid);
       router.push('/(pre-auth)/onboarding');
     } finally {
       setLoading(false);

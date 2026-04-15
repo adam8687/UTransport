@@ -1,18 +1,20 @@
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { useUser } from '@/context/UserContext';
+import { db } from '@/firebaseConfig';
 import { useRouter } from 'expo-router';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import React, { useState } from 'react';
 import {
-  ActivityIndicator, Alert, KeyboardAvoidingView, Platform,
+  ActivityIndicator,
+  KeyboardAvoidingView, Platform,
   SafeAreaView, StatusBar, StyleSheet, Text, TextInput,
-  TouchableOpacity, View,
+  TouchableOpacity, View
 } from 'react-native';
-import { auth, db } from '@/firebaseConfig';
 
 const BURNT_ORANGE = '#BF5700';
 
 export default function LoginScreen() {
   const router = useRouter();
+  const { loginUser } = useUser();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -27,10 +29,17 @@ export default function LoginScreen() {
     }
     setLoading(true);
     try {
-      const cred = await signInWithEmailAndPassword(auth, email.trim().toLowerCase(), password);
-      // fetch role to route correctly
-      const snap = await getDoc(doc(db, 'users', cred.user.uid));
-      const profile = snap.data();
+      // Demo mode — look up user by email in Firestore
+      const q = query(collection(db, 'users'), where('email', '==', email.trim().toLowerCase()));
+      const snap = await getDocs(q);
+      if (snap.empty) {
+        setError('No account found. Tap Sign Up to register.');
+        setLoading(false);
+        return;
+      }
+      const profile = snap.docs[0].data();
+      await loginUser(profile.uid);
+
       if (profile?.role === 'employee') {
         router.replace('/(tabs)/work-portal');
       } else if (profile?.profileComplete) {
@@ -39,13 +48,7 @@ export default function LoginScreen() {
         router.replace('/(pre-auth)/onboarding');
       }
     } catch (e: any) {
-      if (e.code === 'auth/user-not-found' || e.code === 'auth/invalid-credential') {
-        setError('No account found. Tap Sign Up to register.');
-      } else if (e.code === 'auth/wrong-password') {
-        setError('Incorrect email or password.');
-      } else {
-        setError('Sign in failed. Please try again.');
-      }
+      setError('Sign in failed. Please try again.');
     } finally {
       setLoading(false);
     }

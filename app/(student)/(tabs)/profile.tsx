@@ -1,12 +1,11 @@
+import { GlassCard } from '@/components/ui/glass-card';
+import { useUser } from '@/context/UserContext';
+import { db } from '@/firebaseConfig';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import React, { useState } from 'react';
-import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View, Alert } from 'react-native';
-import { signOut } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
-import { auth, db } from '@/firebaseConfig';
-import { useUser } from '@/context/UserContext';
-import { GlassCard } from '@/components/ui/glass-card';
+import React, { useState } from 'react';
+import { Alert, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
 const BURNT_ORANGE = '#BF5700';
 
@@ -16,7 +15,7 @@ function getInitials(firstName: string, lastName: string) {
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { userProfile, firebaseUser } = useUser();
+  const { userProfile, firebaseUser, logoutUser } = useUser();
   const [phone, setPhone] = useState(userProfile?.phone || '');
   const [isEditing, setIsEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -42,12 +41,8 @@ export default function ProfileScreen() {
         text: 'Sign Out',
         style: 'destructive',
         onPress: async () => {
-          try {
-            await signOut(auth);
-            router.replace('/(pre-auth)');
-          } catch (e) {
-            Alert.alert('Error', 'Failed to sign out.');
-          }
+          logoutUser();
+          router.replace('/(pre-auth)');
         },
       },
     ]);

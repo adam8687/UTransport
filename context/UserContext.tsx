@@ -1,7 +1,6 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { onAuthStateChanged, User } from 'firebase/auth';
+import { db } from '@/firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '@/firebaseConfig';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 export interface UserProfile {
   uid: string;
@@ -25,12 +24,18 @@ export interface UserProfile {
   pushToken: string | null;
 }
 
+interface DemoUser {
+  uid: string;
+}
+
 interface UserContextType {
-  firebaseUser: User | null;
+  firebaseUser: DemoUser | null;
   userProfile: UserProfile | null;
   authLoading: boolean;
   setUserProfile: (profile: UserProfile) => void;
   refreshProfile: () => Promise<void>;
+  loginUser: (uid: string) => Promise<void>;
+  logoutUser: () => void;
 }
 
 const UserContext = createContext<UserContextType>({
@@ -39,10 +44,12 @@ const UserContext = createContext<UserContextType>({
   authLoading: true,
   setUserProfile: () => {},
   refreshProfile: async () => {},
+  loginUser: async () => {},
+  logoutUser: () => {},
 });
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [firebaseUser, setFirebaseUser] = useState<User | null>(null);
+  const [firebaseUser, setFirebaseUser] = useState<DemoUser | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
@@ -61,21 +68,23 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     if (firebaseUser) await fetchProfile(firebaseUser.uid);
   }
 
+  async function loginUser(uid: string) {
+    setFirebaseUser({ uid });
+    await fetchProfile(uid);
+  }
+
+  function logoutUser() {
+    setFirebaseUser(null);
+    setUserProfile(null);
+  }
+
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, async (user) => {
-      setFirebaseUser(user);
-      if (user) {
-        await fetchProfile(user.uid);
-      } else {
-        setUserProfile(null);
-      }
-      setAuthLoading(false);
-    });
-    return unsub;
+    // Demo mode — no real Firebase Auth, just mark loading as done
+    setAuthLoading(false);
   }, []);
 
   return (
-    <UserContext.Provider value={{ firebaseUser, userProfile, authLoading, setUserProfile, refreshProfile }}>
+    <UserContext.Provider value={{ firebaseUser, userProfile, authLoading, setUserProfile, refreshProfile, loginUser, logoutUser }}>
       {children}
     </UserContext.Provider>
   );

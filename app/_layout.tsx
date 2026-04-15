@@ -1,3 +1,4 @@
+import { UserProvider } from '@/context/UserContext';
 import {
   SourceSans3_400Regular,
   SourceSans3_500Medium,
@@ -11,7 +12,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect } from 'react';
 import 'react-native-reanimated';
-import { UserProvider } from '@/context/UserContext';
 
 SplashScreen.preventAutoHideAsync();
 

@@ -1,6 +1,6 @@
-import { Tabs } from 'expo-router';
 import { FloatingTabBar } from '@/components/ui/floating-tab-bar';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import { Tabs } from 'expo-router';
 
 export default function TabLayout() {
   return (
