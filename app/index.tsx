@@ -15,6 +15,8 @@ export default function AuthGate() {
     );
   }
 
+  // TODO: re-enable Firebase auth gate once backend is configured
+  // For now, send unauthenticated users straight to the landing page.
   if (!firebaseUser) {
     return <Redirect href="/(pre-auth)" />;
   }
@@ -34,7 +36,7 @@ export default function AuthGate() {
     return <Redirect href="/(student)/(tabs)" />;
   }
 
-  // Fallback
+  // Fallback — go to pre-auth landing
   return <Redirect href="/(pre-auth)" />;
 }
 

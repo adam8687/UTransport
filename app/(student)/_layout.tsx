@@ -11,9 +11,10 @@ export default function StudentLayout() {
     return <View style={styles.center}><ActivityIndicator size="large" color={BURNT_ORANGE} /></View>;
   }
 
-  if (!firebaseUser || userProfile?.role !== 'student') {
-    return <Redirect href="/(pre-auth)" />;
-  }
+  // TODO: restore this guard once Firebase auth is configured
+  // if (!firebaseUser || userProfile?.role !== 'student') {
+  //   return <Redirect href="/(pre-auth)" />;
+  // }
 
   return (
     <Stack screenOptions={{ headerShown: false }}>
