@@ -75,12 +75,12 @@ firebaseConfig.js   # Not committed — ask Adam
 
 ## Demo accounts
 
-There are a handful of pre-seeded Firestore users for demoing. Ask Adam for the credentials. The app runs in "demo mode" — it does not use Firebase Auth, just Firestore document lookups by email.
+There are a handful of pre-seeded Firestore users for demoing. Ask Adam for the credentials.
 
 ---
 
 ## Known issues / limitations
 
-- The driver route is a hardcoded simulation (Jester Center area). It doesn't use real GPS.
-- No payment or university integration — this is a prototype.
+- The driver route is currently a hardcoded simulation. It doesn't use real GPS.
+- No payment or university integration; this is a prototype.
 
