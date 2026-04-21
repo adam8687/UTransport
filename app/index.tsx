@@ -1,6 +1,6 @@
-import { Redirect } from 'expo-router';
-import { View, ActivityIndicator, StyleSheet } from 'react-native';
 import { useUser } from '@/context/UserContext';
+import { Redirect } from 'expo-router';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 
 const BURNT_ORANGE = '#BF5700';
 
@@ -23,7 +23,7 @@ export default function AuthGate() {
 
   // Employee
   if (userProfile?.role === 'employee') {
-    return <Redirect href="/(tabs)/work-portal" />;
+    return <Redirect href="/(tabs)/portal" />;
   }
 
   // Student onboarding incomplete

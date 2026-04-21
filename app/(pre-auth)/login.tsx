@@ -1,3 +1,4 @@
+import { UTHeader } from '@/components/ui/ut-header';
 import { useUser } from '@/context/UserContext';
 import { db } from '@/firebaseConfig';
 import { useRouter } from 'expo-router';
@@ -47,7 +48,7 @@ export default function LoginScreen() {
       } else {
         router.replace('/(pre-auth)/onboarding');
       }
-    } catch (e: any) {
+    } catch (e : any) {
       setError('Sign in failed. Please try again.');
     } finally {
       setLoading(false);
@@ -56,14 +57,9 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar backgroundColor={BURNT_ORANGE} barStyle="light-content" />
+      <StatusBar backgroundColor="#BF5700" barStyle="light-content" />
+      <UTHeader />
       <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View style={styles.header}>
-          <TouchableOpacity style={styles.backBtn} onPress={() => router.back()}>
-            <Text style={styles.backText}>‹</Text>
-          </TouchableOpacity>
-          <Text style={styles.headerText}>UT Transportation</Text>
-        </View>
 
         <View style={styles.body}>
           <Text style={styles.title}>Log In</Text>
@@ -126,12 +122,8 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: BURNT_ORANGE },
+  safe: { flex: 1, backgroundColor: '#BF5700' },
   container: { flex: 1, backgroundColor: '#fff' },
-  header: { backgroundColor: BURNT_ORANGE, paddingVertical: 18, paddingHorizontal: 16, flexDirection: 'row', alignItems: 'center' },
-  backBtn: { marginRight: 12 },
-  backText: { color: '#fff', fontSize: 30, lineHeight: 32 },
-  headerText: { color: '#fff', fontSize: 18, fontWeight: '700', flex: 1, textAlign: 'center', marginRight: 30 },
   body: { flex: 1, paddingHorizontal: 28, paddingTop: 36 },
   title: { fontSize: 26, fontWeight: '800', color: '#1A1A1A', textAlign: 'center', marginBottom: 24 },
   errorText: { color: '#C0392B', fontSize: 13, textAlign: 'center', marginBottom: 12 },

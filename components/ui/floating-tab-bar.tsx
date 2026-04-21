@@ -3,10 +3,10 @@ import * as Haptics from 'expo-haptics';
 import React, { useEffect } from 'react';
 import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, {
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-  withTiming,
+    useAnimatedStyle,
+    useSharedValue,
+    withSpring,
+    withTiming,
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -84,10 +84,17 @@ function TabItem({ route, descriptor, navigation, isFocused }: TabItemProps) {
 export function FloatingTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
 
+  // Hide the entire tab bar if the focused screen has tabBarStyle.display === 'none'
+  const focusedOpts = descriptors[state.routes[state.index].key].options as any;
+  if (focusedOpts.tabBarStyle?.display === 'none') return null;
+
   const visibleRoutes = state.routes.filter((route) => {
     const opts = descriptors[route.key].options as any;
     // hide routes where href is explicitly null (Expo Router convention)
-    return opts.href !== null;
+    if (opts.href === null) return false;
+    // hide routes where tabBarStyle.display === 'none'
+    if (opts.tabBarStyle?.display === 'none') return false;
+    return true;
   });
 
   return (

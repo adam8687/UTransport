@@ -1,11 +1,12 @@
+import { db } from '@/firebaseConfig';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import {
-  SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity,
-  View, ActivityIndicator, Alert,
+    ActivityIndicator, Alert,
+    SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity,
+    View,
 } from 'react-native';
-import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
-import { db } from '@/firebaseConfig';
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated';
 
 const BURNT_ORANGE = '#BF5700';
@@ -64,6 +65,26 @@ export default function RideStatusScreen() {
     });
     return unsub;
   }, [id]);
+
+  // Demo mode — auto-progress through statuses
+  useEffect(() => {
+    if (!ride || ride.status === 'completed' || ride.status === 'cancelled') return;
+    const transitions: Record<string, { next: string; delay: number; extra?: any }> = {
+      pending: { next: 'accepted', delay: 4000, extra: { driverName: 'Alex M.', driverPhone: '(512) 555-0147' } },
+      accepted: { next: 'enRoute', delay: 5000 },
+      enRoute: { next: 'completed', delay: 6000 },
+    };
+    const t = transitions[ride.status];
+    if (!t) return;
+    const timer = setTimeout(async () => {
+      try {
+        await updateDoc(doc(db, 'rideRequests', id as string), { status: t.next, ...t.extra });
+      } catch (e) {
+        console.warn('Demo auto-progress error:', e);
+      }
+    }, t.delay);
+    return () => clearTimeout(timer);
+  }, [ride?.status]);
 
   async function handleCancel() {
     if (!id || !ride) return;

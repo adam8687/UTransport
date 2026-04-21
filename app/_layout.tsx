@@ -1,11 +1,12 @@
 import { UserProvider } from '@/context/UserContext';
+import { usePushNotifications } from '@/hooks/use-push-notifications';
 import {
-  SourceSans3_400Regular,
-  SourceSans3_500Medium,
-  SourceSans3_600SemiBold,
-  SourceSans3_700Bold,
-  SourceSans3_800ExtraBold,
-  useFonts,
+    SourceSans3_400Regular,
+    SourceSans3_500Medium,
+    SourceSans3_600SemiBold,
+    SourceSans3_700Bold,
+    SourceSans3_800ExtraBold,
+    useFonts,
 } from '@expo-google-fonts/source-sans-3';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
@@ -37,6 +38,15 @@ export default function RootLayout() {
 
   return (
     <UserProvider>
+      <AppContent />
+    </UserProvider>
+  );
+}
+
+function AppContent() {
+  usePushNotifications();
+  return (
+    <>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="index" />
         <Stack.Screen name="(pre-auth)" />
@@ -44,7 +54,7 @@ export default function RootLayout() {
         <Stack.Screen name="(tabs)" />
       </Stack>
       <StatusBar style="auto" />
-    </UserProvider>
+    </>
   );
 }
 

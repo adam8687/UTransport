@@ -1,7 +1,7 @@
 import { GlassCard } from '@/components/ui/glass-card';
-import { UTHeader } from '@/components/ui/ut-header';
 import { useUser } from '@/context/UserContext';
 import { db } from '@/firebaseConfig';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { doc, updateDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
@@ -50,8 +50,12 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar backgroundColor="#BF5700" barStyle="light-content" />
-      <UTHeader />
+      <StatusBar backgroundColor={BURNT_ORANGE} barStyle="light-content" />
+      <LinearGradient colors={[BURNT_ORANGE, '#d4733a', '#f5ede6']} locations={[0, 0.35, 1]} style={styles.headerGradient}>
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Profile</Text>
+        </View>
+      </LinearGradient>
 
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
         {/* Avatar */}
@@ -135,7 +139,13 @@ export default function ProfileScreen() {
             <View style={styles.divider} />
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>DAR Registered</Text>
-              <Text style={styles.infoValue}>{userProfile?.darRegistered === 'yes' ? 'Yes' : userProfile?.darRegistered === 'in_progress' ? 'In Progress' : 'No'}</Text>
+              <Text style={styles.infoValue}>
+                {userProfile?.darRegistered === 'yes'
+                  ? 'Yes'
+                  : userProfile?.darRegistered === 'in_progress'
+                  ? 'In Progress'
+                  : 'No'}
+              </Text>
             </View>
           </GlassCard>
         </View>
@@ -145,9 +155,11 @@ export default function ProfileScreen() {
           <Text style={styles.sectionTitle}>Medical Document</Text>
           <GlassCard style={styles.card}>
             <View style={styles.docContainer}>
-              <Text style={styles.docStatus}>{userProfile?.medDocUrl ? '✅ Document Uploaded' : '❌ No Document'}</Text>
+              <Text style={styles.docStatus}>
+                {userProfile?.medDocUrl ? '✅ Document Uploaded' : '❌ No Document'}
+              </Text>
               <TouchableOpacity
-                style={[styles.uploadBtn]}
+                style={styles.uploadBtn}
                 onPress={() => Alert.alert('Coming Soon', 'Medical document upload will be available soon.')}
               >
                 <Text style={styles.uploadBtnText}>Upload Document</Text>
@@ -172,6 +184,9 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
+  headerGradient: { paddingTop: 0, paddingBottom: 0 },
+  header: { paddingVertical: 18, paddingHorizontal: 16, alignItems: 'center' },
+  headerTitle: { color: '#fff', fontSize: 18, fontWeight: '700' },
   body: { paddingHorizontal: 20, paddingTop: 20, paddingBottom: 40 },
   avatarContainer: { alignItems: 'center', marginBottom: 28 },
   avatar: { width: 80, height: 80, borderRadius: 40, backgroundColor: BURNT_ORANGE, justifyContent: 'center', alignItems: 'center', marginBottom: 12 },

@@ -1,18 +1,19 @@
+import { UTHeader } from '@/components/ui/ut-header';
+import { useUser } from '@/context/UserContext';
+import { db } from '@/firebaseConfig';
+import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import React, { useState } from 'react';
 import {
   ActivityIndicator, Alert, SafeAreaView, ScrollView, StatusBar,
   StyleSheet, Text, TextInput, TouchableOpacity, View,
 } from 'react-native';
-import { collection, addDoc, serverTimestamp, query, where, getDocs } from 'firebase/firestore';
-import { db } from '@/firebaseConfig';
-import { useUser } from '@/context/UserContext';
 
 const BURNT_ORANGE = '#BF5700';
 
 function isSureWalkOpen() {
-  const now = new Date();
-  return now.getHours() >= 20;
+  return true; // demo
 }
 
 function getCountdown() {
@@ -50,17 +51,15 @@ const radioStyles = StyleSheet.create({
 
 export default function RequestScreen() {
   const router = useRouter();
-  const { userProfile, firebaseUser } = useUser();
+  const { userProfile, firebaseUser, setActiveRideId, activeRideId } = useUser();
   const [activeTab, setActiveTab] = useState<'surewalk' | 'pts'>('surewalk');
   const sureWalkOpen = isSureWalkOpen();
 
-  // SureWalk state
   const [swPickup, setSwPickup] = useState('');
   const [swDropoff, setSwDropoff] = useState('');
   const [swPeople, setSwPeople] = useState('1');
   const [swNotes, setSwNotes] = useState('');
 
-  // PTS state
   const [ptsPickup, setPtsPickup] = useState('');
   const [ptsDestination, setPtsDestination] = useState('');
   const [ptsReason, setPtsReason] = useState('');
@@ -70,19 +69,37 @@ export default function RequestScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  async function checkExistingRequest() {
-    if (!firebaseUser) return false;
-    try {
-      const q = query(
-        collection(db, 'rideRequests'),
-        where('uid', '==', firebaseUser.uid),
-        where('status', 'in', ['pending', 'accepted', 'enRoute'])
-      );
-      const snap = await getDocs(q);
-      return !snap.empty;
-    } catch (e) {
-      return false;
-    }
+  if (activeRideId) {
+    return (
+      <SafeAreaView style={styles.safe}>
+        <StatusBar backgroundColor="#F5F5F5" barStyle="dark-content" />
+        <UTHeader />
+        <View style={styles.center}>
+          <Text style={styles.inProgressIcon}>??</Text>
+          <Text style={styles.inProgressTitle}>Ride In Progress</Text>
+          <Text style={styles.inProgressMsg}>
+            You already have an active ride request. Track it on the Status tab.
+          </Text>
+          <TouchableOpacity
+            style={styles.viewStatusBtn}
+            onPress={() => router.push('/(student)/(tabs)/status')}
+          >
+            <Text style={styles.viewStatusBtnText}>View Live Status ?</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.cancelLink}
+            onPress={() =>
+              Alert.alert('Cancel Ride?', 'This will remove your current ride request from the queue.', [
+                { text: 'Keep Ride', style: 'cancel' },
+                { text: 'Cancel Ride', style: 'destructive', onPress: () => setActiveRideId(null) },
+              ])
+            }
+          >
+            <Text style={styles.cancelLinkText}>Cancel Current Ride</Text>
+          </TouchableOpacity>
+        </View>
+      </SafeAreaView>
+    );
   }
 
   async function handleSureWalkSubmit() {
@@ -91,30 +108,28 @@ export default function RequestScreen() {
       setError('Please fill in pickup and drop-off locations.');
       return;
     }
-
-    const hasActive = await checkExistingRequest();
-    if (hasActive) {
-      Alert.alert('Active Request', 'You already have an active ride request. Complete or cancel it first.');
-      return;
-    }
-
     setLoading(true);
     try {
-      const docRef = await addDoc(collection(db, 'rideRequests'), {
-        uid: firebaseUser!.uid,
-        type: 'surewalk',
-        pickup: swPickup.trim(),
+      const studentName = userProfile
+        ? `${userProfile.firstName} ${userProfile.lastName}`
+        : 'Demo Student';
+      const docRef = await addDoc(collection(db, 'rides'), {
+        studentName,
+        studentUid: firebaseUser?.uid ?? 'demo',
+        pickupName: swPickup.trim(),
+        pickup: { latitude: 30.282179, longitude: -97.737517 }, // Jester Center
         dropoff: swDropoff.trim(),
         numPeople: parseInt(swPeople) || 1,
         notes: swNotes.trim(),
-        studentName: `${userProfile?.firstName} ${userProfile?.lastName}`,
-        studentPhone: userProfile?.phone,
-        adaRequired: userProfile?.adaRequired || false,
-        mobilityAids: userProfile?.mobilityAids || [],
-        status: 'pending',
-        timestamp: serverTimestamp(),
+        type: 'SureWalk',
+        status: 'waiting',
+        createdAt: serverTimestamp(),
+        claimedBy: null,
+        workerLocation: null,
       });
-      router.push(`/(student)/ride-status/${docRef.id}`);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setActiveRideId(docRef.id);
+      router.push('/(student)/(tabs)/status');
     } catch (e: any) {
       setError('Failed to submit request. Please try again.');
     } finally {
@@ -124,35 +139,32 @@ export default function RequestScreen() {
 
   async function handlePTSSubmit() {
     setError('');
-    if (!ptsPickup.trim() || !ptsDestination.trim() || !ptsReason.trim()) {
+    if (!ptsPickup.trim() || !ptsDestination.trim()) {
       setError('Please fill in all required fields.');
       return;
     }
-
-    const hasActive = await checkExistingRequest();
-    if (hasActive) {
-      Alert.alert('Active Request', 'You already have an active ride request. Complete or cancel it first.');
-      return;
-    }
-
     setLoading(true);
     try {
-      const docRef = await addDoc(collection(db, 'rideRequests'), {
-        uid: firebaseUser!.uid,
-        type: 'pts',
-        pickup: ptsPickup.trim(),
-        destination: ptsDestination.trim(),
+      const studentName = userProfile
+        ? `${userProfile.firstName} ${userProfile.lastName}`
+        : 'Demo Student';
+      const docRef = await addDoc(collection(db, 'rides'), {
+        studentName,
+        studentUid: firebaseUser?.uid ?? 'demo',
+        pickupName: ptsPickup.trim(),
+        pickup: { latitude: 30.282179, longitude: -97.737517 }, // Jester Center
         reason: ptsReason.trim(),
         mobilityAid: ptsMobilityAid,
         notes: ptsNotes.trim(),
-        studentName: `${userProfile?.firstName} ${userProfile?.lastName}`,
-        studentPhone: userProfile?.phone,
-        adaRequired: userProfile?.adaRequired || false,
-        mobilityAids: userProfile?.mobilityAids || [],
-        status: 'pending',
-        timestamp: serverTimestamp(),
+        type: 'PTS Pickup',
+        status: 'waiting',
+        createdAt: serverTimestamp(),
+        claimedBy: null,
+        workerLocation: null,
       });
-      router.push(`/(student)/ride-status/${docRef.id}`);
+      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setActiveRideId(docRef.id);
+      router.push('/(student)/(tabs)/status');
     } catch (e: any) {
       setError('Failed to submit request. Please try again.');
     } finally {
@@ -163,22 +175,18 @@ export default function RequestScreen() {
   if (activeTab === 'surewalk' && !sureWalkOpen) {
     return (
       <SafeAreaView style={styles.safe}>
-        <StatusBar backgroundColor={BURNT_ORANGE} barStyle="light-content" />
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Request a Ride</Text>
-        </View>
-
+        <StatusBar backgroundColor="#F5F5F5" barStyle="dark-content" />
+        <UTHeader />
         <View style={styles.tabBar}>
-          <TouchableOpacity style={[styles.tab, activeTab === 'surewalk' && styles.tabActive]} onPress={() => setActiveTab('surewalk')}>
-            <Text style={[styles.tabText, activeTab === 'surewalk' && styles.tabTextActive]}>SureWalk</Text>
+          <TouchableOpacity style={[styles.tab, styles.tabActive]} onPress={() => setActiveTab('surewalk')}>
+            <Text style={[styles.tabText, styles.tabTextActive]}>SureWalk</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.tab, (activeTab as string) === 'pts' && styles.tabActive]} onPress={() => setActiveTab('pts')}>
-            <Text style={[styles.tabText, (activeTab as string) === 'pts' && styles.tabTextActive]}>PTS Pickup</Text>
+          <TouchableOpacity style={styles.tab} onPress={() => setActiveTab('pts')}>
+            <Text style={styles.tabText}>PTS Pickup</Text>
           </TouchableOpacity>
         </View>
-
         <View style={styles.closedContainer}>
-          <Text style={styles.closedIcon}>🕒</Text>
+          <Text style={styles.closedIcon}>??</Text>
           <Text style={styles.closedTitle}>SureWalk Not Available</Text>
           <Text style={styles.closedMessage}>SureWalk is available from 8 PM to 6 AM for your safety.</Text>
           <Text style={styles.closedCountdown}>Opens in {getCountdown()}</Text>
@@ -192,10 +200,8 @@ export default function RequestScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar backgroundColor={BURNT_ORANGE} barStyle="light-content" />
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Request a Ride</Text>
-      </View>
+      <StatusBar backgroundColor="#F5F5F5" barStyle="dark-content" />
+      <UTHeader />
 
       <View style={styles.tabBar}>
         <TouchableOpacity style={[styles.tab, activeTab === 'surewalk' && styles.tabActive]} onPress={() => setActiveTab('surewalk')}>
@@ -212,27 +218,15 @@ export default function RequestScreen() {
         {activeTab === 'surewalk' ? (
           <>
             <Text style={styles.sectionLabel}>Pickup Location *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Where should we pick you up?"
-              placeholderTextColor="#AAAAAA"
-              value={swPickup}
-              onChangeText={setSwPickup}
-            />
+            <TextInput style={styles.input} placeholder="Where should we pick you up?" placeholderTextColor="#AAAAAA" value={swPickup} onChangeText={setSwPickup} />
 
             <Text style={styles.sectionLabel}>Drop-off Location *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Where are you going?"
-              placeholderTextColor="#AAAAAA"
-              value={swDropoff}
-              onChangeText={setSwDropoff}
-            />
+            <TextInput style={styles.input} placeholder="Where are you going?" placeholderTextColor="#AAAAAA" value={swDropoff} onChangeText={setSwDropoff} />
 
             <Text style={styles.sectionLabel}>Number of People</Text>
             <View style={styles.stepperRow}>
               <TouchableOpacity style={styles.stepperBtn} onPress={() => setSwPeople(String(Math.max(1, parseInt(swPeople) - 1)))}>
-                <Text style={styles.stepperText}>−</Text>
+                <Text style={styles.stepperText}>-</Text>
               </TouchableOpacity>
               <Text style={styles.stepperValue}>{swPeople}</Text>
               <TouchableOpacity style={styles.stepperBtn} onPress={() => setSwPeople(String(Math.min(4, parseInt(swPeople) + 1)))}>
@@ -241,35 +235,22 @@ export default function RequestScreen() {
             </View>
 
             <Text style={styles.sectionLabel}>Additional Notes</Text>
-            <TextInput
-              style={[styles.input, styles.inputMultiline]}
-              placeholder="Any special instructions?"
-              placeholderTextColor="#AAAAAA"
-              value={swNotes}
-              onChangeText={setSwNotes}
-              multiline
-            />
+            <TextInput style={[styles.input, styles.inputMultiline]} placeholder="Any special instructions?" placeholderTextColor="#AAAAAA" value={swNotes} onChangeText={setSwNotes} multiline />
 
             {userProfile?.adaRequired && (
               <View style={styles.adaBadge}>
-                <Text style={styles.adaBadgeText}>♿ ADA Accommodation: Your profile info will be included with this request.</Text>
+                <Text style={styles.adaBadgeText}>? ADA Accommodation: Your profile info will be included with this request.</Text>
               </View>
             )}
           </>
         ) : (
           <>
             <Text style={styles.sectionLabel}>Pickup Location *</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="Where should we pick you up?"
-              placeholderTextColor="#AAAAAA"
-              value={ptsPickup}
-              onChangeText={setPtsPickup}
-            />
+            <TextInput style={styles.input} placeholder="Where should we pick you up?" placeholderTextColor="#AAAAAA" value={ptsPickup} onChangeText={setPtsPickup} />
 
             <Text style={styles.sectionLabel}>Destination *</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
-              {[{label:'UHS',value:'uhs'},{label:'Campus Pharmacy',value:'pharmacy'},{label:'CVS',value:'cvs'},{label:'Other',value:'other'}].map(o => (
+              {[{ label: 'UHS', value: 'uhs' }, { label: 'Campus Pharmacy', value: 'pharmacy' }, { label: 'CVS', value: 'cvs' }, { label: 'Other', value: 'other' }].map(o => (
                 <TouchableOpacity key={o.value} onPress={() => setPtsDestination(o.value)}
                   style={[radioStyles.chip, ptsDestination === o.value && radioStyles.chipActive]}>
                   <Text style={[radioStyles.chipText, ptsDestination === o.value && radioStyles.chipTextActive]}>{o.label}</Text>
@@ -278,19 +259,13 @@ export default function RequestScreen() {
             </View>
 
             {ptsDestination === 'other' && (
-              <TextInput
-                style={[styles.input, { marginTop: 12 }]}
-                placeholder="Enter your destination"
-                placeholderTextColor="#AAAAAA"
-                value={ptsReason}
-                onChangeText={setPtsReason}
-              />
+              <TextInput style={[styles.input, { marginTop: 12 }]} placeholder="Enter your destination" placeholderTextColor="#AAAAAA" value={ptsReason} onChangeText={setPtsReason} />
             )}
 
             {ptsDestination !== 'other' && (
               <>
-                <Text style={[styles.sectionLabel, { marginTop: 14 }]}>Reason for Trip *</Text>
-                <RadioGroup options={[{label:'Medical',value:'medical'},{label:'Disability',value:'disability'},{label:'Essential',value:'essential'},{label:'Other',value:'other_reason'}]} selected={ptsReason} onSelect={setPtsReason} />
+                <Text style={[styles.sectionLabel, { marginTop: 14 }]}>Reason for Trip</Text>
+                <RadioGroup options={[{ label: 'Medical', value: 'medical' }, { label: 'Disability', value: 'disability' }, { label: 'Essential', value: 'essential' }, { label: 'Other', value: 'other_reason' }]} selected={ptsReason} onSelect={setPtsReason} />
               </>
             )}
 
@@ -305,18 +280,11 @@ export default function RequestScreen() {
             </View>
 
             <Text style={styles.sectionLabel}>Additional Notes</Text>
-            <TextInput
-              style={[styles.input, styles.inputMultiline]}
-              placeholder="Any special instructions?"
-              placeholderTextColor="#AAAAAA"
-              value={ptsNotes}
-              onChangeText={setPtsNotes}
-              multiline
-            />
+            <TextInput style={[styles.input, styles.inputMultiline]} placeholder="Any special instructions?" placeholderTextColor="#AAAAAA" value={ptsNotes} onChangeText={setPtsNotes} multiline />
 
             {userProfile?.adaRequired && (
               <View style={styles.adaBadge}>
-                <Text style={styles.adaBadgeText}>♿ ADA Accommodation: Your profile info will be included with this request.</Text>
+                <Text style={styles.adaBadgeText}>? ADA Accommodation: Your profile info will be included with this request.</Text>
               </View>
             )}
           </>
@@ -327,11 +295,7 @@ export default function RequestScreen() {
           onPress={activeTab === 'surewalk' ? handleSureWalkSubmit : handlePTSSubmit}
           disabled={loading}
         >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.submitText}>Request Ride</Text>
-          )}
+          {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.submitText}>Request Ride</Text>}
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -358,7 +322,7 @@ const styles = StyleSheet.create({
   stepperValue: { fontSize: 16, fontWeight: '700', color: '#333' },
   adaBadge: { backgroundColor: '#FFF8F4', borderRadius: 8, padding: 12, marginTop: 16, borderWidth: 1, borderColor: '#FFD6B8' },
   adaBadgeText: { fontSize: 13, color: '#7A4500', fontWeight: '500' },
-  submitButton: { backgroundColor: BURNT_ORANGE, borderRadius: 10, paddingVertical: 16, alignItems: 'center', marginTop: 24 },
+  submitButton: { backgroundColor: '#1565C0', borderRadius: 10, paddingVertical: 16, alignItems: 'center', marginTop: 24 },
   disabled: { opacity: 0.6 },
   submitText: { color: '#fff', fontSize: 17, fontWeight: '700' },
   closedContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 24 },
@@ -368,4 +332,12 @@ const styles = StyleSheet.create({
   closedCountdown: { fontSize: 24, fontWeight: '700', color: BURNT_ORANGE, marginBottom: 24 },
   switchButton: { backgroundColor: BURNT_ORANGE, borderRadius: 10, paddingHorizontal: 24, paddingVertical: 14 },
   switchButtonText: { color: '#fff', fontSize: 16, fontWeight: '700' },
+  center: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 32 },
+  inProgressIcon: { fontSize: 72, marginBottom: 20 },
+  inProgressTitle: { fontSize: 24, fontWeight: '800', color: '#333', marginBottom: 10 },
+  inProgressMsg: { fontSize: 15, color: '#666', textAlign: 'center', lineHeight: 22, marginBottom: 32 },
+  viewStatusBtn: { backgroundColor: BURNT_ORANGE, borderRadius: 12, paddingHorizontal: 36, paddingVertical: 15, marginBottom: 16 },
+  viewStatusBtnText: { color: '#fff', fontWeight: '800', fontSize: 16 },
+  cancelLink: { padding: 12 },
+  cancelLinkText: { color: '#999', fontSize: 14, textDecorationLine: 'underline' },
 });

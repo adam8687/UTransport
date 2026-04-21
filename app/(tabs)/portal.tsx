@@ -1,9 +1,13 @@
+// Worker Dispatcher Portal
+// Pulls rides where status == 'waiting' from Firestore.
+// Composite index NOT needed — orderBy is done client-side.
+
 import { db } from '@/firebaseConfig';
-import { collection, doc, onSnapshot, orderBy, query, updateDoc, where } from 'firebase/firestore';
+import { collection, doc, onSnapshot, query, updateDoc, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator, FlatList, SafeAreaView, StatusBar,
-  StyleSheet, Text, TouchableOpacity, View,
+    ActivityIndicator, FlatList, SafeAreaView, StatusBar,
+    StyleSheet, Text, TouchableOpacity, View,
 } from 'react-native';
 
 const BURNT_ORANGE = '#BF5700';
@@ -21,8 +25,7 @@ function timeSince(ts: any): string {
   return `${Math.floor(secs / 3600)}h ago`;
 }
 
-function RideCard({ ride, onClaim }: { ride: any; onClaim: () => void }) {
-  const isWaiting = ride.status === 'waiting';
+function RideCard({ ride, onClaim, claiming }: { ride: any; onClaim: () => void; claiming: boolean }) {
   return (
     <View style={styles.card}>
       <View style={styles.cardHeader}>
@@ -45,39 +48,49 @@ function RideCard({ ride, onClaim }: { ride: any; onClaim: () => void }) {
         <Text style={styles.cardNotes}>"{ride.notes}"</Text>
       ) : null}
 
-      {isWaiting ? (
-        <TouchableOpacity style={styles.claimBtn} onPress={onClaim} activeOpacity={0.8}>
-          <Text style={styles.claimBtnText}>CLAIM RIDE</Text>
-        </TouchableOpacity>
-      ) : (
-        <View style={styles.claimedBadge}>
-          <Text style={styles.claimedText}>
-            {ride.status === 'claimed' ? '✅ Claimed' : ride.status === 'completed' ? '✓ Completed' : ride.status}
-          </Text>
-        </View>
-      )}
+      <TouchableOpacity
+        style={[styles.claimBtn, claiming && styles.claimBtnDisabled]}
+        onPress={onClaim}
+        activeOpacity={0.8}
+        disabled={claiming}
+      >
+        {claiming
+          ? <ActivityIndicator color="#fff" size="small" />
+          : <Text style={styles.claimBtnText}>CLAIM RIDE</Text>}
+      </TouchableOpacity>
     </View>
   );
 }
 
-export default function WorkPortalScreen() {
+export default function PortalScreen() {
   const [rides, setRides] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [claiming, setClaiming] = useState<string | null>(null);
 
   useEffect(() => {
+    // NOTE: Only filtering by status (no orderBy) so no composite index is needed.
+    // Client-side sort by createdAt below.
     const q = query(
       collection(db, 'rides'),
       where('status', '==', 'waiting'),
-      orderBy('createdAt', 'desc'),
     );
+
     const unsub = onSnapshot(q, (snap) => {
-      setRides(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      const docs = snap.docs
+        .map(d => ({ id: d.id, ...d.data() }))
+        // Sort newest-first client-side
+        .sort((a: any, b: any) => {
+          const at = a.createdAt?.seconds ?? 0;
+          const bt = b.createdAt?.seconds ?? 0;
+          return bt - at;
+        });
+      setRides(docs);
       setLoading(false);
     }, (err) => {
-      console.warn('Portal snapshot error:', err);
+      console.warn('[Portal] snapshot error:', err.message);
       setLoading(false);
     });
+
     return unsub;
   }, []);
 
@@ -89,8 +102,10 @@ export default function WorkPortalScreen() {
         claimedBy: 'MockWorker-123',
         workerLocation: WORKER_START,
       });
-    } catch (e) {
-      console.warn('Claim error:', e);
+      // Firestore onSnapshot on the student's status screen will pick this up
+      // and trigger the driver simulation + local notification automatically.
+    } catch (e: any) {
+      console.warn('[Portal] claim error:', e.message);
     } finally {
       setClaiming(null);
     }
@@ -104,7 +119,7 @@ export default function WorkPortalScreen() {
         <View>
           <Text style={styles.headerTitle}>Dispatcher Queue</Text>
           <Text style={styles.headerSub}>
-            {loading ? 'Loading...' : `${rides.length} waiting ride${rides.length !== 1 ? 's' : ''}`}
+            {loading ? 'Loading…' : `${rides.length} ride${rides.length !== 1 ? 's' : ''} waiting`}
           </Text>
         </View>
         <View style={styles.onlineDot} />
@@ -128,7 +143,11 @@ export default function WorkPortalScreen() {
           renderItem={({ item }) => (
             <RideCard
               ride={item}
-              onClaim={() => claiming ? undefined : handleClaim(item.id)}
+              claiming={claiming === item.id}
+              onClaim={() => {
+                if (claiming) return; // block concurrent claims
+                handleClaim(item.id);
+              }}
             />
           )}
         />
@@ -150,15 +169,18 @@ const styles = StyleSheet.create({
   headerTitle: { color: '#fff', fontSize: 20, fontWeight: '800' },
   headerSub: { color: 'rgba(255,255,255,0.75)', fontSize: 13, marginTop: 2 },
   onlineDot: {
-    width: 12, height: 12, borderRadius: 6,
+    width: 13, height: 13, borderRadius: 7,
     backgroundColor: '#4CAF50',
     borderWidth: 2, borderColor: '#fff',
   },
+
   center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  emptyIcon: { fontSize: 48, marginBottom: 12 },
+  emptyIcon: { fontSize: 52, marginBottom: 14 },
   emptyTitle: { fontSize: 18, fontWeight: '700', color: CHARCOAL, marginBottom: 6 },
   emptyMsg: { fontSize: 14, color: '#888', textAlign: 'center', paddingHorizontal: 32 },
+
   list: { padding: 16, gap: 12 },
+
   card: {
     backgroundColor: '#fff',
     borderRadius: 14,
@@ -169,33 +191,28 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 3,
   },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  cardHeader: {
+    flexDirection: 'row', justifyContent: 'space-between',
+    alignItems: 'center', marginBottom: 8,
+  },
   typeBadge: { borderRadius: 6, paddingHorizontal: 10, paddingVertical: 4 },
   badgeSW: { backgroundColor: '#FFF0E6' },
   badgePTS: { backgroundColor: '#E8F0FF' },
   typeBadgeText: { fontSize: 12, fontWeight: '700', color: CHARCOAL },
   cardTime: { fontSize: 12, color: '#999' },
   cardName: { fontSize: 16, fontWeight: '700', color: CHARCOAL, marginBottom: 8 },
-  coordRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
+  coordRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 6 },
   coordLabel: { fontSize: 12, color: '#888', fontWeight: '600' },
-  coordValue: { fontSize: 12, color: CHARCOAL, fontFamily: 'monospace' },
-  cardNotes: { fontSize: 13, color: '#666', fontStyle: 'italic', marginTop: 4, marginBottom: 8 },
+  coordValue: { fontSize: 13, color: CHARCOAL, fontWeight: '500' },
+  cardNotes: { fontSize: 13, color: '#777', fontStyle: 'italic', marginBottom: 12 },
+
   claimBtn: {
     backgroundColor: BURNT_ORANGE,
-    borderRadius: 8,
-    paddingVertical: 12,
+    borderRadius: 10,
+    paddingVertical: 13,
     alignItems: 'center',
-    marginTop: 12,
+    marginTop: 6,
   },
-  claimBtnText: { color: '#fff', fontWeight: '800', fontSize: 14, letterSpacing: 1 },
-  claimedBadge: {
-    borderRadius: 8,
-    paddingVertical: 10,
-    alignItems: 'center',
-    marginTop: 12,
-    backgroundColor: '#F0FFF0',
-    borderWidth: 1,
-    borderColor: '#4CAF50',
-  },
-  claimedText: { color: '#2E7D32', fontWeight: '700', fontSize: 14 },
+  claimBtnDisabled: { opacity: 0.6 },
+  claimBtnText: { color: '#fff', fontWeight: '800', fontSize: 15, letterSpacing: 0.5 },
 });

@@ -32,6 +32,8 @@ interface UserContextType {
   firebaseUser: DemoUser | null;
   userProfile: UserProfile | null;
   authLoading: boolean;
+  activeRideId: string | null;
+  setActiveRideId: (id: string | null) => void;
   setUserProfile: (profile: UserProfile) => void;
   refreshProfile: () => Promise<void>;
   loginUser: (uid: string) => Promise<void>;
@@ -42,6 +44,8 @@ const UserContext = createContext<UserContextType>({
   firebaseUser: null,
   userProfile: null,
   authLoading: true,
+  activeRideId: null,
+  setActiveRideId: () => {},
   setUserProfile: () => {},
   refreshProfile: async () => {},
   loginUser: async () => {},
@@ -52,6 +56,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [firebaseUser, setFirebaseUser] = useState<DemoUser | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [activeRideId, setActiveRideId] = useState<string | null>(null);
 
   async function fetchProfile(uid: string) {
     try {
@@ -76,15 +81,15 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   function logoutUser() {
     setFirebaseUser(null);
     setUserProfile(null);
+    setActiveRideId(null);
   }
 
   useEffect(() => {
-    // Demo mode — no real Firebase Auth, just mark loading as done
     setAuthLoading(false);
   }, []);
 
   return (
-    <UserContext.Provider value={{ firebaseUser, userProfile, authLoading, setUserProfile, refreshProfile, loginUser, logoutUser }}>
+    <UserContext.Provider value={{ firebaseUser, userProfile, authLoading, activeRideId, setActiveRideId, setUserProfile, refreshProfile, loginUser, logoutUser }}>
       {children}
     </UserContext.Provider>
   );

@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "UT-Transportation-App",
-    "slug": "UT-Transportation-App",
+    "name": "UTransport",
+    "slug": "utransport",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",

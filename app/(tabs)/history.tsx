@@ -1,11 +1,11 @@
-import { UTHeader } from '@/components/ui/ut-header';
 import { useUser } from '@/context/UserContext';
 import { db } from '@/firebaseConfig';
+import { LinearGradient } from 'expo-linear-gradient';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import {
-  ActivityIndicator, Alert, SafeAreaView, ScrollView,
-  StatusBar, StyleSheet, Text, TouchableOpacity, View,
+    ActivityIndicator, Alert, SafeAreaView, ScrollView,
+    StatusBar, StyleSheet, Text, TouchableOpacity, View,
 } from 'react-native';
 
 const BURNT_ORANGE = '#BF5700';
@@ -54,6 +54,8 @@ export default function HistoryScreen() {
     if (!firebaseUser) return;
     async function fetchRides() {
       try {
+        // Filter to completed rides only, no orderBy to avoid composite index requirement.
+        // Sort client-side instead.
         const q = query(
           collection(db, 'rides'),
           where('studentUid', '==', firebaseUser!.uid),
@@ -76,8 +78,10 @@ export default function HistoryScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.safe}>
-        <StatusBar backgroundColor="#BF5700" barStyle="light-content" />
-        <UTHeader />
+        <StatusBar backgroundColor={BURNT_ORANGE} barStyle="light-content" />
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Ride History</Text>
+        </View>
         <View style={styles.centerContent}>
           <ActivityIndicator size="large" color={BURNT_ORANGE} />
         </View>
@@ -87,15 +91,23 @@ export default function HistoryScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <StatusBar backgroundColor="#BF5700" barStyle="light-content" />
-      <UTHeader />
+      <StatusBar backgroundColor={BURNT_ORANGE} barStyle="light-content" />
+      <LinearGradient
+        colors={[BURNT_ORANGE, '#d4733a', '#f5ede6']}
+        locations={[0, 0.35, 1]}
+        style={styles.headerGradient}
+      >
+        <View style={styles.header}>
+          <Text style={styles.headerTitle}>Ride History</Text>
+        </View>
+      </LinearGradient>
 
       {rides.length === 0 ? (
         <View style={styles.centerContent}>
           <Text style={styles.emptyIcon}>📋</Text>
-          <Text style={styles.emptyTitle}>No Completed Rides Yet</Text>
+          <Text style={styles.emptyTitle}>No Rides Yet</Text>
           <Text style={styles.emptyMessage}>
-            Your completed rides will appear here.
+            Your ride history will appear here once you request a ride.
           </Text>
         </View>
       ) : (
@@ -106,17 +118,17 @@ export default function HistoryScreen() {
               style={styles.rideCard}
               onPress={() =>
                 Alert.alert(
-                  `${ride.type === 'SureWalk' ? 'SureWalk' : 'PTS Pickup'} Ride`,
+                  `${ride.type === 'surewalk' ? 'SureWalk' : 'PTS Pickup'} Ride`,
                   `Pickup: ${formatPickup(ride.pickup)}\nStatus: ${getStatusLabel(ride.status)}\nDate: ${formatDate(ride.createdAt)}`,
                   [{ text: 'Close' }]
                 )
               }
             >
               <View style={styles.rideCardLeft}>
-                <Text style={styles.rideIcon}>{ride.type === 'SureWalk' ? '🚶' : '🚐'}</Text>
+                <Text style={styles.rideIcon}>{ride.type === 'surewalk' ? '🚶' : '🚐'}</Text>
                 <View style={styles.rideDetails}>
                   <Text style={styles.rideType}>
-                    {ride.type === 'SureWalk' ? 'SureWalk' : 'PTS Pickup'}
+                    {ride.type === 'surewalk' ? 'SureWalk' : 'PTS Pickup'}
                   </Text>
                   <Text style={styles.rideRoute}>📍 {formatPickup(ride.pickup)}</Text>
                   <Text style={styles.rideDate}>{formatDate(ride.createdAt)}</Text>
@@ -135,15 +147,24 @@ export default function HistoryScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
+  headerGradient: { paddingTop: 0, paddingBottom: 0 },
+  header: { paddingVertical: 18, paddingHorizontal: 16, alignItems: 'center' },
+  headerTitle: { color: '#fff', fontSize: 18, fontWeight: '700' },
   centerContent: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   emptyIcon: { fontSize: 60, marginBottom: 16 },
   emptyTitle: { fontSize: 18, fontWeight: '700', color: '#1A1A1A', marginBottom: 8 },
   emptyMessage: { fontSize: 14, color: '#666', textAlign: 'center', paddingHorizontal: 24 },
   body: { paddingHorizontal: 16, paddingTop: 12, paddingBottom: 24 },
   rideCard: {
-    backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10,
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    borderWidth: 1, borderColor: '#E0E0E0',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
   },
   rideCardLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   rideIcon: { fontSize: 32, marginRight: 12 },
@@ -154,4 +175,3 @@ const styles = StyleSheet.create({
   statusBadge: { borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, marginLeft: 8 },
   statusText: { color: '#fff', fontSize: 11, fontWeight: '700' },
 });
-

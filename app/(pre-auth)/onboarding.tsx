@@ -1,11 +1,12 @@
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { useUser } from '@/context/UserContext';
+import { db } from '@/firebaseConfig';
 import { useRouter } from 'expo-router';
+import { doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import React, { useState } from 'react';
 import {
-  ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView,
-  ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View,
+    ActivityIndicator, KeyboardAvoidingView, Platform, SafeAreaView,
+    ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View,
 } from 'react-native';
-import { auth, db } from '@/firebaseConfig';
 
 const BURNT_ORANGE = '#BF5700';
 
@@ -46,6 +47,7 @@ const radioStyles = StyleSheet.create({
 
 export default function OnboardingScreen() {
   const router = useRouter();
+  const { firebaseUser, refreshProfile } = useUser();
   // Section A
   const [adaRequired, setAdaRequired] = useState('');
   const [mobilityAids, setMobilityAids] = useState<string[]>([]);
@@ -72,7 +74,7 @@ export default function OnboardingScreen() {
     setError('');
     if (!adaRequired) { setError('Please answer the ADA question.'); return; }
     if (!termsSignature.trim()) { setError('Please type your full name to confirm the terms.'); return; }
-    const uid = auth.currentUser?.uid;
+    const uid = firebaseUser?.uid;
     if (!uid) { setError('Session expired. Please log in again.'); return; }
     setLoading(true);
     try {
@@ -91,6 +93,7 @@ export default function OnboardingScreen() {
         profileComplete: true,
         onboardingCompletedAt: serverTimestamp(),
       });
+      await refreshProfile();
       router.replace('/(student)/(tabs)');
     } catch (e: any) {
       setError('Failed to save profile. Please try again.');
