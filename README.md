@@ -10,7 +10,7 @@ Built with Expo + React Native, Firebase Firestore, and react-native-maps.
 
 - **Students** log in, pick SureWalk or PTS Pickup, fill out a short form, and submit. They're dropped onto a status screen that shows a spinner while waiting, then switches to a live map once a driver is claimed.
 - **Dispatchers** open the work portal and see all pending rides. They tap a card to claim it, which notifies the student and starts the live tracking simulation.
-- The driver's position animates along a pre-calculated route toward the pickup point. An ETA counts down and a "Driver Arrived" confirmation pops up at the end.
+- The driver's position is shown on pre-calculated route toward pickup point. An ETA displays and confirmation notifications pop up.
 
 ---
 
