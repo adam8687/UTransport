@@ -82,6 +82,5 @@ There are a handful of pre-seeded Firestore users for demoing. Ask Adam for the 
 ## Known issues / limitations
 
 - The driver route is a hardcoded simulation (Jester Center area). It doesn't use real GPS.
-- Push notifications only work on physical devices, not the iOS simulator.
-- No actual payment or university SSO integration — this is a prototype.
+- No payment or university integration — this is a prototype.
 
