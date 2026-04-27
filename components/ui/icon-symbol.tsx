@@ -24,6 +24,8 @@ const MAPPING = {
   'person.badge.plus': 'person-add',
   'clock.fill': 'history',
   'briefcase.fill': 'work',
+  'car.fill': 'directions-car',
+  'location.fill': 'place',
 } as IconMapping;
 
 /**

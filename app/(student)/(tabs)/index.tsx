@@ -11,13 +11,13 @@ const BURNT_ORANGE = '#BF5700';
 
 function getGreeting() {
   const h = new Date().getHours();
-  if (h < 12) return 'Good morning';
-  if (h < 17) return 'Good afternoon';
+  if (h >= 5 && h < 12) return 'Good morning';
+  if (h >= 12 && h < 17) return 'Good afternoon';
   return 'Good evening';
 }
 
 function isSureWalkOpen() {
-  return true; // Demo mode — always open
+  return true; // Demo mode
 }
 
 function getCountdown() {
@@ -71,7 +71,7 @@ export default function HomeScreen() {
       <ScrollView contentContainerStyle={styles.body} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <Text style={styles.greeting}>{getGreeting()},</Text>
-          <Text style={styles.name}>{userProfile?.firstName ?? 'Longhorn'} 🤘</Text>
+          <Text style={styles.name}>{userProfile?.firstName ?? 'Longhorn'} </Text>
         </View>
           {activeRide && (
             <Animated.View entering={FadeInDown.delay(60).duration(400)}>
@@ -89,7 +89,7 @@ export default function HomeScreen() {
             <TouchableOpacity
               style={[styles.serviceCard, !sureWalkOpen && styles.serviceCardDimmed]}
               onPress={() => router.push('/(student)/(tabs)/request')}
-              activeOpacity={0.85}
+              activeOpacity={0.5}
             >
               <Text style={styles.serviceIcon}>🚶</Text>
               <View style={styles.serviceInfo}>
@@ -110,7 +110,7 @@ export default function HomeScreen() {
           </Animated.View>
 
           <Animated.View entering={FadeInDown.delay(200).duration(450)}>
-            <TouchableOpacity style={styles.serviceCard} onPress={() => router.push('/(student)/(tabs)/request')} activeOpacity={0.85}>
+            <TouchableOpacity style={styles.serviceCard} onPress={() => router.push('/(student)/(tabs)/request')} activeOpacity={0.5}>
               <Text style={styles.serviceIcon}>🚐</Text>
               <View style={styles.serviceInfo}>
                 <Text style={styles.serviceName}>PTS Pickup</Text>
@@ -135,21 +135,21 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#F5F5F5' },
-  header: { paddingTop: 20, paddingBottom: 8, paddingHorizontal: 24 },
-  greeting: { color: '#666', fontSize: 16, fontWeight: '500' },
-  name: { color: '#1A1A1A', fontSize: 26, fontWeight: '800', letterSpacing: 0.2 },
+  header: { paddingTop: 20, paddingBottom: 25, paddingHorizontal: 15 },
+  greeting: { color: '#666', fontSize: 20, fontWeight: '500' },
+  name: { color: '#1a1a1a', fontSize: 26, fontWeight: '800', letterSpacing: 0.2 },
   body: { paddingHorizontal: 20, paddingBottom: 20 },
   activeRideBanner: { backgroundColor: '#fff', borderRadius: 16, padding: 16, marginBottom: 14, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 8, elevation: 4, borderWidth: 1, borderColor: 'rgba(191,87,0,0.2)' },
   activeBannerLabel: { fontSize: 11, fontWeight: '700', color: BURNT_ORANGE, textTransform: 'uppercase', letterSpacing: 0.5 },
   activeBannerStatus: { fontSize: 14, color: '#1A1A1A', fontWeight: '600', marginTop: 2 },
   activeBannerChevron: { fontSize: 22, color: BURNT_ORANGE },
-  serviceCard: { backgroundColor: '#fff', borderRadius: 18, padding: 18, marginBottom: 12, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 10, elevation: 4 },
+  serviceCard: { backgroundColor: '#fff', borderRadius: 18, padding: 30, marginBottom: 15, flexDirection: 'row', alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.08, shadowRadius: 10, elevation: 4 },
   serviceCardDimmed: { opacity: 0.75 },
-  serviceIcon: { fontSize: 36, marginRight: 16 },
+  serviceIcon: { fontSize: 45, marginRight: 16 },
   serviceInfo: { flex: 1 },
   serviceName: { fontSize: 18, fontWeight: '700', color: '#1A1A1A' },
-  serviceDesc: { fontSize: 13, color: '#666', marginTop: 2 },
-  openBadge: { backgroundColor: '#E8F5E9', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3, marginTop: 6, alignSelf: 'flex-start' },
+  serviceDesc: { fontSize: 13, color: '#666', marginTop: 8 },
+  openBadge: { backgroundColor: '#E8F5E9', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3, marginTop: 10, alignSelf: 'flex-start' },
   openBadgeText: { fontSize: 11, color: '#2E7D32', fontWeight: '700' },
   closedBadge: { backgroundColor: '#FFF3E0', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3, marginTop: 6, alignSelf: 'flex-start' },
   closedBadgeText: { fontSize: 11, color: '#E65100', fontWeight: '700' },

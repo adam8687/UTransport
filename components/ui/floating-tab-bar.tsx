@@ -162,8 +162,9 @@ const styles = StyleSheet.create({
   },
   activePill: {
     position: 'absolute',
-    width: '82%',
-    height: '100%',
+    width: '96%',
+    top: 4,
+    bottom: 4,
     borderRadius: 28,
     backgroundColor: 'rgba(191,87,0,0.1)',
     // Subtle inner border

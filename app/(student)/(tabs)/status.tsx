@@ -1,4 +1,5 @@
-﻿import { UTHeader } from '@/components/ui/ut-header';
+﻿import { IconSymbol } from '@/components/ui/icon-symbol';
+import { UTHeader } from '@/components/ui/ut-header';
 import { useUser } from '@/context/UserContext';
 import { db } from '@/firebaseConfig';
 import * as Location from 'expo-location';
@@ -239,7 +240,9 @@ export default function StatusScreen() {
           )}
           {driverPos && (
             <Marker coordinate={driverPos} anchor={{ x: 0.5, y: 0.5 }}>
-              <View style={s.carBubble}><Text style={s.carEmoji}>{'\ud83d\ude97'}</Text></View>
+              <View style={s.carBubble}>
+                <IconSymbol name="car.fill" size={22} color={BURNT_ORANGE} />
+              </View>
             </Marker>
           )}
         </MapView>
@@ -283,12 +286,12 @@ export default function StatusScreen() {
 
         <View style={s.metaRow}>
           <View style={s.metaItem}>
-            <Text style={s.metaIcon}>{'\ud83d\ude97'}</Text>
+            <IconSymbol name="car.fill" size={18} color={BURNT_ORANGE} />
             <View><Text style={s.metaLabel}>SERVICE</Text><Text style={s.metaValue}>{ride.type}</Text></View>
           </View>
           <View style={s.metaSep} />
           <View style={s.metaItem}>
-            <Text style={s.metaIcon}>{'\ud83d\udccd'}</Text>
+            <IconSymbol name="location.fill" size={18} color={BURNT_ORANGE} />
             <View style={{ flex: 1 }}><Text style={s.metaLabel}>PICKUP</Text><Text style={s.metaValue} numberOfLines={1}>{pickupLabel}</Text></View>
           </View>
         </View>
@@ -333,7 +336,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 14, paddingVertical: 8,
     shadowColor: '#000', shadowOpacity: 0.20, shadowRadius: 10, elevation: 6,
   },
-  floatingChipImg: { height: 26, width: 140 },
+  floatingChipImg: { height: 34, width: 180 },
   floatingChipText: { fontSize: 14, fontWeight: '900', color: BURNT_ORANGE, letterSpacing: 0.6 },
   mapToast: {
     position: 'absolute', bottom: 14, left: 14, right: 14,
