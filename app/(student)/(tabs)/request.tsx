@@ -1,6 +1,8 @@
 import { UTHeader } from '@/components/ui/ut-header';
 import { useUser } from '@/context/UserContext';
 import { db } from '@/firebaseConfig';
+import { BrandColors } from '@/constants/theme';
+import { getCountdown, isSureWalkOpen } from '@/utils/serviceHelpers';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
@@ -10,22 +12,7 @@ import {
   StyleSheet, Text, TextInput, TouchableOpacity, View,
 } from 'react-native';
 
-const BURNT_ORANGE = '#BF5700';
-
-function isSureWalkOpen() {
-  return true; // demo
-}
-
-function getCountdown() {
-  const now = new Date();
-  const open = new Date();
-  open.setHours(20, 0, 0, 0);
-  if (now >= open) return null;
-  const diff = open.getTime() - now.getTime();
-  const h = Math.floor(diff / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  return `${h}h ${m}m`;
-}
+const BURNT_ORANGE = BrandColors.burntOrange;
 
 type Option = { label: string; value: string };
 
