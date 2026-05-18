@@ -1,35 +1,15 @@
 import { UTHeader } from '@/components/ui/ut-header';
 import { useUser } from '@/context/UserContext';
 import { db } from '@/firebaseConfig';
+import { BrandColors } from '@/constants/theme';
+import { getCountdown, getGreeting, isSureWalkOpen } from '@/utils/serviceHelpers';
 import { useRouter } from 'expo-router';
 import { collection, getDocs, limit, orderBy, query, where } from 'firebase/firestore';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
-const BURNT_ORANGE = '#BF5700';
-
-function getGreeting() {
-  const h = new Date().getHours();
-  if (h >= 5 && h < 12) return 'Good morning';
-  if (h >= 12 && h < 17) return 'Good afternoon';
-  return 'Good evening';
-}
-
-function isSureWalkOpen() {
-  return true; // Demo mode
-}
-
-function getCountdown() {
-  const now = new Date();
-  const open = new Date();
-  open.setHours(20, 0, 0, 0);
-  if (now >= open) return null;
-  const diff = open.getTime() - now.getTime();
-  const h = Math.floor(diff / 3600000);
-  const m = Math.floor((diff % 3600000) / 60000);
-  return `${h}h ${m}m`;
-}
+const BURNT_ORANGE = BrandColors.burntOrange;
 
 export default function HomeScreen() {
   const router = useRouter();

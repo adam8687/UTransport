@@ -28,6 +28,10 @@ yarn-error.*
 
 # macOS
 .DS_Store
+
+# Firebase — keep real credentials out of source control
+# Copy firebaseConfig.example.js → firebaseConfig.js and fill in your values
+firebaseConfig.js
 *.pem
 
 # local env files
