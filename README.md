@@ -43,10 +43,10 @@ The project was built as a full end-to-end prototype to explore real-time mobile
 
 **Key technical decisions:**
 
-- **No dedicated backend** — Firestore security rules + client-side Firestore SDK handle all data access. This keeps the demo self-contained and deployable with zero server infrastructure.
-- **Role-based routing** — after login the app inspects `profile.role` (`'student'` | `'employee'`) and `profile.profileComplete`, then uses `router.replace()` to land users in the correct tab group. No JWT middleware required.
-- **Simulated driver route** — a pre-calculated polyline from a fixed spawn point to the student's pickup is animated with `react-native-reanimated` shared values, producing smooth 60 fps motion without a real GPS feed. Swapping in a live location feed requires only replacing the interval-driven waypoint logic with a Firestore geo-update listener.
-- **Shared design tokens** — brand colors and service-availability helpers live in `constants/theme.ts` and `utils/serviceHelpers.ts` so every screen stays in sync without magic strings.
+- **No dedicated backend** : Firestore security rules + client-side Firestore SDK handle all data access. This keeps the demo self-contained and deployable with zero server infrastructure.
+- **Role-based routing** : after login the app inspects `profile.role` (`'student'` | `'employee'`) and `profile.profileComplete`, then uses `router.replace()` to land users in the correct tab group. No JWT middleware required.
+- **Simulated driver route** : a pre-calculated polyline from a fixed spawn point to the student's pickup is animated with `react-native-reanimated` shared values, producing smooth 60 fps motion without a real GPS feed. Swapping in a live location feed requires only replacing the interval-driven waypoint logic with a Firestore geo-update listener.
+- **Shared design tokens** : brand colors and service-availability helpers live in `constants/theme.ts` and `utils/serviceHelpers.ts` so every screen stays in sync without magic strings.
 
 ---
 
