@@ -1,6 +1,6 @@
 # UTransport
 
-> A real-time campus transportation request app for UT Austin — connecting students with SureWalk escorts and PTS medical pickups through a live dispatch interface.
+> A real-time campus transportation request app for UT Austin connecting students with SureWalk escorts and PTS medical pickups through a live dispatch interface.
 
 ---
 
@@ -113,7 +113,7 @@ npx expo start --tunnel
 
 Scan the QR code with your camera (iOS) or the Expo Go app (Android).
 
-> `@expo/ngrok` occasionally needs a retry on first launch if the tunnel hangs — just kill and restart.
+> `@expo/ngrok` occasionally needs a retry on first launch if the tunnel hangs just kill and restart.
 
 ---
 
@@ -125,11 +125,9 @@ The Firestore database is seeded with several test accounts covering both studen
 
 ## Known Limitations & Roadmap
 
-| Status | Item |
-|---|---|
-| ⚠️ Demo only | Driver route is a hardcoded simulation; replacing the interval with a Firestore geo-update listener would enable real GPS tracking |
-| ⚠️ Demo only | Auth uses a Firestore email-lookup instead of Firebase Authentication — production would use Firebase Auth with proper ID tokens |
-| 🔜 Planned | Ride history pagination and analytics dashboard for dispatchers |
-| 🔜 Planned | Integration with UT's official DAR (Disability Accommodation Resources) system |
-| 🔜 Planned | Driver-side app and two-way ETA updates |
+|  Demo only | Driver route is a hardcoded simulation; replacing the interval with a Firestore geo-update listener would enable real GPS tracking |
+|  Demo only | Auth uses a Firestore email-lookup instead of Firebase Authentication — production would use Firebase Auth with proper ID tokens |
+|  Planned | Ride history pagination and analytics dashboard for dispatchers |
+|  Planned | Integration with UT's official DAR (Disability Accommodation Resources) system |
+|  Planned | Driver-side app and two-way ETA updates |
 
