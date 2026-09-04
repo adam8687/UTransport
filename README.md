@@ -8,7 +8,7 @@
 
 UTransport digitizes UT Austin's existing campus-safety transportation services. Students submit a ride request from their phone; dispatchers see it instantly in a live queue and claim it with one tap; the student is then shown a live map of the driver approaching their pickup point, complete with an animated route and ETA countdown.
 
-The project was built as a full end-to-end prototype to explore real-time mobile UX patterns using Firebase Firestore's WebSocket-backed listeners, animated route simulation with `react-native-reanimated`, and a role-based auth model without a dedicated backend server.
+Built in the "Accessibility" sub-case in HealthTech Spring 2026.
 
 ---
 
